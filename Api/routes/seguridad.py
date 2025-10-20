@@ -2,8 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security.api_key import APIKeyHeader
 from utils.connectBBD import ValidarApiKeyPost, ValidarApiKeyGet
 
-apikey_header = APIKeyHeader(name='API-Key', auto_error=False) 
-
+apikey_header = APIKeyHeader(name='API-Key', auto_error=False)
 
 def validar_acceso_post(api_key: str = Depends(apikey_header)):
 
