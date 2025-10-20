@@ -1,6 +1,8 @@
 import mysql.connector as mq
 import mysql.connector.errors as mqE
+from datetime import datetime
 
+# Configuración centralizada de la BBDD
 db_config = {
     "host": "localhost",
     "user": "apikey",
@@ -8,7 +10,7 @@ db_config = {
     "database": "eva01"
 }
 
-def ValidarApiKeyPost(apikey: str):
+def ValidarApiKeyPost(apikey: str) -> bool:
     resultado = []
     try:
         bbdd = mq.connect(**db_config)
@@ -26,7 +28,7 @@ def ValidarApiKeyPost(apikey: str):
     return len(resultado) > 0
 
 
-def ValidarApiKeyGet(apikey: str):
+def ValidarApiKeyGet(apikey: str) -> bool:
     resultado = []
     try:
         bbdd = mq.connect(**db_config)
@@ -43,40 +45,49 @@ def ValidarApiKeyGet(apikey: str):
             bbdd.close()
     return len(resultado) > 0
 
-def InsertarDatos(humedad: float, temperatura: float, estado_boton: int, apikey: str):
+def InsertarDatos(humedad: float, temperatura: float, estado_boton: int, apikey: str) -> bool:
     try: 
         bbdd = mq.connect(**db_config)
         cursor = bbdd.cursor()
+        
+        # Obtenemos fecha y hora por separado
+        ahora = datetime.now()
+        fecha_actual = ahora.date()
+        hora_actual = ahora.time()
+
+        # Asumimos que tus columnas se llaman 'fecha' y 'hora'
         consulta = (
-            "INSERT INTO regDatos (Humedad, Temperatura, EstadoBoton, Origen) "
-            "VALUES (%s, %s, %s, (SELECT id_disp FROM ApikeyPost WHERE apikey = %s))"
+            "INSERT INTO regDatos (Humedad, Temperatura, EstadoBoton, Origen, fecha, hora) "
+            "VALUES (%s, %s, %s, (SELECT id_disp FROM ApikeyPost WHERE apikey = %s), %s, %s)"
         )
-        datos = (humedad, temperatura, estado_boton, apikey)
+        datos = (humedad, temperatura, estado_boton, apikey, fecha_actual, hora_actual)
+        
         cursor.execute(consulta, datos)
         bbdd.commit()
         return True
     except mqE.Error as err:
         print(f"Error de base de datos al insertar: {err}")
+        bbdd.rollback()
         return False
     finally:
         if 'bbdd' in locals() and bbdd.is_connected():
             cursor.close()
             bbdd.close()
 
-def ConsultarUltimosDiezDatos(id_dispositivo: str):
+def ConsultarUltimosDiezDatos(id_dispositivo: str) -> dict:
     try:
         bbdd = mq.connect(**db_config)
-
-        cursor = bbdd.cursor(dictionary=True)
+        # Usamos dictionary=True para facilitar el formato JSON
+        cursor = bbdd.cursor(dictionary=True) 
         
         consulta = (
-            "SELECT Humedad, Temperatura, EstadoBoton, instantelectura "
+            "SELECT Humedad, Temperatura, EstadoBoton, fecha, hora "
             "FROM regDatos WHERE Origen = %s "
-            "ORDER BY instantelectura DESC LIMIT 10"
+            "ORDER BY fecha DESC, hora DESC LIMIT 10"
         )    
         cursor.execute(consulta, (id_dispositivo,))
-        resultados = cursor.fetchall()
-
+        resultados = cursor.fetchall() 
+        
         return {"registros": resultados}
     except mqE.Error as err:
         print(f"Error de base de datos al consultar últimos 10: {err}")
@@ -86,17 +97,18 @@ def ConsultarUltimosDiezDatos(id_dispositivo: str):
             cursor.close()
             bbdd.close()
 
-def ConsultarUltimoDato(id_dispositivo: str):
+def ConsultarUltimoDato(id_dispositivo: str) -> dict:
     try:
         bbdd = mq.connect(**db_config)
+        # Usamos dictionary=True
         cursor = bbdd.cursor(dictionary=True)      
         consulta = (
-            "SELECT Humedad, Temperatura, EstadoBoton, instantelectura "
+            "SELECT Humedad, Temperatura, EstadoBoton, fecha, hora "
             "FROM regDatos WHERE Origen = %s "
-            "ORDER BY instantelectura DESC LIMIT 1"
+            "ORDER BY fecha DESC, hora DESC LIMIT 1"
         )        
         cursor.execute(consulta, (id_dispositivo,))
-        resultado = cursor.fetchone()
+        resultado = cursor.fetchone() 
         
         if resultado:
             return {"registros": [resultado]} 
