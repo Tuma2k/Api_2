@@ -2,7 +2,6 @@ import mysql.connector as mq
 import mysql.connector.errors as mqE
 from datetime import datetime
 
-# Configuración centralizada de la BBDD
 db_config = {
     "host": "localhost",
     "user": "apikey",
@@ -50,12 +49,10 @@ def InsertarDatos(humedad: float, temperatura: float, estado_boton: int, apikey:
         bbdd = mq.connect(**db_config)
         cursor = bbdd.cursor()
         
-        # Obtenemos fecha y hora por separado
         ahora = datetime.now()
         fecha_actual = ahora.date()
         hora_actual = ahora.time()
 
-        # Asumimos que tus columnas se llaman 'fecha' y 'hora'
         consulta = (
             "INSERT INTO regDatos (Humedad, Temperatura, EstadoBoton, Origen, fecha, hora) "
             "VALUES (%s, %s, %s, (SELECT id_disp FROM ApikeyPost WHERE apikey = %s), %s, %s)"
@@ -77,7 +74,6 @@ def InsertarDatos(humedad: float, temperatura: float, estado_boton: int, apikey:
 def ConsultarUltimosDiezDatos(id_dispositivo: str) -> dict:
     try:
         bbdd = mq.connect(**db_config)
-        # Usamos dictionary=True para facilitar el formato JSON
         cursor = bbdd.cursor(dictionary=True) 
         
         consulta = (
@@ -100,8 +96,8 @@ def ConsultarUltimosDiezDatos(id_dispositivo: str) -> dict:
 def ConsultarUltimoDato(id_dispositivo: str) -> dict:
     try:
         bbdd = mq.connect(**db_config)
-        # Usamos dictionary=True
         cursor = bbdd.cursor(dictionary=True)      
+        
         consulta = (
             "SELECT Humedad, Temperatura, EstadoBoton, fecha, hora "
             "FROM regDatos WHERE Origen = %s "
