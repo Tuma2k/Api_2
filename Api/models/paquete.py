@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime, date, time
+from datetime import datetime, date, time 
 from typing import List
 
 class pa_reception(BaseModel):
@@ -16,7 +16,6 @@ class Registro(BaseModel):
     Temperatura: float
     EstadoBoton: int
     fecha: date
-    hora: time
-
+    hora: str 
 class respGet(BaseModel):
     registros: List[Registro]
