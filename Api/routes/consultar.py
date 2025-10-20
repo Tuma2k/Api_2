@@ -14,7 +14,6 @@ async def obtener_ultimo_dato(
     api_key: str = Depends(validar_acceso_get)
 ):
     datos = ConsultarUltimoDato(id_dispositivo)
-    # --- CAMBIO: Verificamos la clave 'registros' ---
     if not datos["registros"]: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail="No se encontraron datos para el dispositivo especificado")
@@ -30,7 +29,6 @@ async def obtener_ultimos_diez(
 ):
     
     datos = ConsultarUltimosDiezDatos(id_dispositivo)
-    # --- CAMBIO: Verificamos la clave 'registros' ---
     if not datos["registros"]: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail="No se encontraron datos para el dispositivo especificado")
