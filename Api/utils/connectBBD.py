@@ -5,11 +5,11 @@ from datetime import datetime
 db_config = {
     "host": "localhost",
     "user": "apikey",
-    "password": "miraculos",
+    "password": "mirame",
     "database": "eva01"
 }
 
-def ValidarApiKeyPost(apikey: str) -> bool:
+def ValidarApiKeyPost(apikey: str):
     resultado = []
     try:
         bbdd = mq.connect(**db_config)
@@ -27,7 +27,7 @@ def ValidarApiKeyPost(apikey: str) -> bool:
     return len(resultado) > 0
 
 
-def ValidarApiKeyGet(apikey: str) -> bool:
+def ValidarApiKeyGet(apikey: str):
     resultado = []
     try:
         bbdd = mq.connect(**db_config)
@@ -44,7 +44,7 @@ def ValidarApiKeyGet(apikey: str) -> bool:
             bbdd.close()
     return len(resultado) > 0
 
-def InsertarDatos(humedad: float, temperatura: float, estado_boton: int, apikey: str) -> bool:
+def InsertarDatos(humedad: float, temperatura: float, estado_boton: int, apikey: str):
     try: 
         bbdd = mq.connect(**db_config)
         cursor = bbdd.cursor()
@@ -71,13 +71,13 @@ def InsertarDatos(humedad: float, temperatura: float, estado_boton: int, apikey:
             cursor.close()
             bbdd.close()
 
-def ConsultarUltimosDiezDatos(id_dispositivo: str) -> dict:
+def ConsultarUltimosDiezDatos(id_dispositivo: str):
     try:
         bbdd = mq.connect(**db_config)
         cursor = bbdd.cursor(dictionary=True) 
-        
+
         consulta = (
-            "SELECT Humedad, Temperatura, EstadoBoton, fecha, hora "
+            "SELECT Humedad, Temperatura, EstadoBoton, fecha, CAST(hora AS CHAR) AS hora "
             "FROM regDatos WHERE Origen = %s "
             "ORDER BY fecha DESC, hora DESC LIMIT 10"
         )    
@@ -93,13 +93,12 @@ def ConsultarUltimosDiezDatos(id_dispositivo: str) -> dict:
             cursor.close()
             bbdd.close()
 
-def ConsultarUltimoDato(id_dispositivo: str) -> dict:
+def ConsultarUltimoDato(id_dispositivo: str):
     try:
         bbdd = mq.connect(**db_config)
         cursor = bbdd.cursor(dictionary=True)      
-        
         consulta = (
-            "SELECT Humedad, Temperatura, EstadoBoton, fecha, hora "
+            "SELECT Humedad, Temperatura, EstadoBoton, fecha, CAST(hora AS CHAR) AS hora "
             "FROM regDatos WHERE Origen = %s "
             "ORDER BY fecha DESC, hora DESC LIMIT 1"
         )        
