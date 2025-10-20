@@ -1,44 +1,40 @@
-CREATE DATABASE Eva01;
+CREATE DATABASE IF NOT EXISTS Eva01;
 USE Eva01;
 
-
-DROP DATABASE registros;
-drop table ApikeyPost;
-drop table ApikeyGet;
-drop table regDatos;
-
+DROP TABLE IF EXISTS regDatos;
+DROP TABLE IF EXISTS ApikeyGet;
+DROP TABLE IF EXISTS ApikeyPost;
 
 CREATE TABLE ApikeyPost(
-id_disp varchar(10) primary key,
-isntanteregistro datetime not null default now(),
-apikey varchar(50) not null unique
+    id_disp varchar(10) primary key,
+    isntanteregistro datetime not null default now(),
+    apikey varchar(50) not null unique
 );
+
 CREATE TABLE ApikeyGet(
-id_disp varchar(10) primary key,
-isntanteregistro datetime not null default now(),
-apikey varchar(50) not null unique
+    id_disp varchar(10) primary key,
+    isntanteregistro datetime not null default now(),
+    apikey varchar(50) not null unique
 );
 
 CREATE TABLE regDatos(
-id int primary key auto_increment,
-instantelectura datetime not null default now(),
-Humedad float not null,
-Temperatura float not null,
-EstadoBoton float not null,
-Origen varchar(10) not null,
-foreign key (origen) references ApikeyPost(id_disp)
-)
-
-////////////////////////////////////////////////////////////////
+    id int primary key auto_increment,
+    Humedad float not null,
+    Temperatura float not null,
+    EstadoBoton INT not null,
+    Origen varchar(10) not null,
+    fecha DATE not null,
+    hora TIME not null,
+    foreign key (origen) references ApikeyPost(id_disp)
+);
 
 insert into  eva01.ApikeyPost(id_disp, apikey) values
 ("ESP32","f57HIDY9zfUaHkagPKjAz3+c693RN8mvxxHk9gf7qZQ=")
 ;
 insert into eva01.ApikeyGet(id_disp, apikey) values
-
 ("ESP32_1","mCD2/I3yapmjYvA+OxNsrasCAQnJpIY4InvMBaVw0X4=")
 ;
 
 SELECT * FROM eva01.apikeypost;
 SELECT * FROM eva01.apikeyget;
-SELECT * FROM regdatos;
+SELECT * FROM eva01.regdatos;
